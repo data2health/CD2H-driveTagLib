@@ -2,13 +2,10 @@ package org.cd2h.drive.util;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -29,8 +26,6 @@ public class Harvester extends GoogleAPI {
     static Logger logger = Logger.getLogger(Harvester.class);
     static String APPLICATION_NAME = "CD2H Drive Monitor";
     static List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_METADATA_READONLY);
-    static Connection conn = null;
-
     public static void main(String[] args) throws GeneralSecurityException, IOException, ClassNotFoundException, SQLException {
 	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties("google");
@@ -121,21 +116,6 @@ public class Harvester extends GoogleAPI {
 	} catch (IOException e) {
 	    logger.info("\t\tAn error occured.", e);
 	}
-    }
-    
-    public static Connection getConnection() throws SQLException, ClassNotFoundException {
-	Class.forName("org.postgresql.Driver");
-	Properties props = new Properties();
-	props.setProperty("user", prop_file.getProperty("jdbc.user"));
-	props.setProperty("password", prop_file.getProperty("jdbc.password"));
-	// if (use_ssl.equals("true")) {
-	// props.setProperty("sslfactory",
-	// "org.postgresql.ssl.NonValidatingFactory");
-	// props.setProperty("ssl", "true");
-	// }
-	Connection conn = DriverManager.getConnection(prop_file.getProperty("jdbc.url"), props);
-	// conn.setAutoCommit(false);
-	return conn;
     }
 
 }

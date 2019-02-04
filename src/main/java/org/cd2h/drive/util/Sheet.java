@@ -1,0 +1,49 @@
+package org.cd2h.drive.util;
+
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.ValueRange;
+
+import edu.uiowa.extraction.PropertyLoader;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+public class Sheet extends GoogleAPI {
+    static Logger logger = Logger.getLogger(Sheet.class);
+    static String APPLICATION_NAME = "CD2H Onboarding Sync";
+    static List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+	PropertyConfigurator.configure(args[0]);
+	prop_file = PropertyLoader.loadProperties("google");
+
+	// Build a new authorized API client service.
+	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	final String spreadsheetId = prop_file.getProperty("sheets.spreadsheetId");
+	final String range = "profiles!A3:G";
+	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens"))).setApplicationName(APPLICATION_NAME).build();
+	
+	ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
+	logger.info("response: " + response);
+	List<List<Object>> values = response.getValues();
+	if (values == null || values.isEmpty()) {
+	    logger.error("No data found.");
+	} else {
+	    for (List<?> row : values) {
+		logger.info("timestamp: " + row.get(0));
+		logger.info("\temail: " + row.get(1));
+		logger.info("\tfirst name: " + row.get(3));
+		logger.info("\tlast name: " + row.get(4));
+		logger.info("\tinstitution: " + row.get(5));
+	    }
+	}
+    }
+}

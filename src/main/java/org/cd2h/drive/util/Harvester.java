@@ -19,6 +19,8 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.Revision;
+import com.google.api.services.drive.model.RevisionList;
 import com.google.api.services.drive.model.User;
 
 import edu.uiowa.extraction.PropertyLoader;
@@ -89,12 +91,38 @@ public class Harvester extends GoogleAPI {
 		    dstmt.setString(8, file.getModifiedTime().toString());
 		    dstmt.execute();
 		    dstmt.close();
+		    revisionDetails(service,file.getId());
 		    break;
 		}
 	    }
 	}
     }
 
+    static void revisionDetails(Drive service, String fileId) throws SQLException {
+	logger.info("\trevisions:");
+	try {
+	    RevisionList revisions = service.revisions().list(fileId)
+		    .setFields("revisions(id, modifiedTime, lastModifyingUser)")
+		    .execute();
+	    List<Revision> revisionList = revisions.getRevisions();
+
+	    for (Revision revision : revisionList) {
+		logger.info("\t\trevision ID: " + revision.getId());
+		logger.info("\t\t\tmodified date: " + revision.getModifiedTime());
+		logger.info("\t\t\tuser: " + (revision.getLastModifyingUser() == null ? null : revision.getLastModifyingUser().getDisplayName()));
+		PreparedStatement stmt = conn.prepareStatement("insert into drive.revision values(?,?,?,?)");
+		stmt.setString(1, fileId);
+		stmt.setString(2, revision.getId());
+		stmt.setString(3, revision.getModifiedTime().toString());
+		stmt.setString(4, (revision.getLastModifyingUser() == null ? null : revision.getLastModifyingUser().getDisplayName()));
+		stmt.execute();
+		stmt.close();
+	    }
+	} catch (IOException e) {
+	    logger.info("\t\tAn error occured.", e);
+	}
+    }
+    
     public static Connection getConnection() throws SQLException, ClassNotFoundException {
 	Class.forName("org.postgresql.Driver");
 	Properties props = new Properties();

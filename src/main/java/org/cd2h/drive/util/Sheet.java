@@ -47,13 +47,13 @@ public class Sheet extends GoogleAPI {
 	    for (List<?> row : values) {
 		logger.info("timestamp: " + row.get(0));
 		logger.info("\temail: " + row.get(1));
-		logger.info("\tfirst name: " + row.get(3));
-		logger.info("\tlast name: " + row.get(4));
-		logger.info("\tinstitution: " + row.get(5));
+		logger.info("\tfirst name: " + row.get(2));
+		logger.info("\tlast name: " + row.get(3));
+		logger.info("\tinstitution: " + row.get(4));
 		logger.debug("\trow size: " + row.size());
 		logger.debug("\tlast slot: " + row.toString());
 		
-		PreparedStatement stmt = conn.prepareStatement("insert into drive.person values(?,?,?::boolean,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::boolean,?,?,?,?,?,?,?,?,?,?,?,?)");
+		PreparedStatement stmt = conn.prepareStatement("insert into drive.person values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::boolean,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 		for (int i = 1; i <= row.size(); i++) {
 		    stmt.setString(i, row.get(i-1).toString());
 		}

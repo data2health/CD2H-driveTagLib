@@ -26,6 +26,7 @@ public class Harvester extends GoogleAPI {
     static Logger logger = Logger.getLogger(Harvester.class);
     static String APPLICATION_NAME = "CD2H Drive Monitor";
     static List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_METADATA_READONLY);
+    
     public static void main(String[] args) throws GeneralSecurityException, IOException, ClassNotFoundException, SQLException {
 	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties("google");
@@ -36,7 +37,9 @@ public class Harvester extends GoogleAPI {
 
     static Drive getDrive() throws GeneralSecurityException, IOException {
 	NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-	Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("drive.credentials"), prop_file.getProperty("drive.tokens"))).setApplicationName(APPLICATION_NAME).build();
+	Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("drive.credentials"), prop_file.getProperty("drive.tokens")))
+		.setApplicationName(APPLICATION_NAME)
+		.build();
 	return service;
     }
 

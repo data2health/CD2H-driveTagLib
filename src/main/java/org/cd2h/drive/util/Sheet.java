@@ -36,7 +36,9 @@ public class Sheet extends GoogleAPI {
 	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	final String spreadsheetId = prop_file.getProperty("sheets.spreadsheetId");
 	final String range = "profiles!A3:AR";
-	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens"))).setApplicationName(APPLICATION_NAME).build();
+	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens")))
+		.setApplicationName(APPLICATION_NAME)
+		.build();
 	
 	ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
 	logger.debug("response: " + response);

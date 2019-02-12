@@ -8,6 +8,8 @@
 .settings/org.eclipse.wst.validation.prefs -text
 .settings/org.maven.ide.eclipse.prefs -text
 /pom.xml -text svneol=unset#application/xml
+src/main/java/org/cd2h/drive/util/GitHubAPI.java -text
+src/main/java/org/cd2h/drive/util/GitHubPush.java -text
 src/main/java/org/cd2h/drive/util/GoogleAPI.java -text
 src/main/java/org/cd2h/drive/util/Harvester.java -text
 src/main/java/org/cd2h/drive/util/Sheet.java -text

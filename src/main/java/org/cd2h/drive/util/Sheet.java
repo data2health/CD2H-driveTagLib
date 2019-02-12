@@ -35,7 +35,7 @@ public class Sheet extends GoogleAPI {
 	// Build a new authorized API client service.
 	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	final String spreadsheetId = prop_file.getProperty("sheets.spreadsheetId");
-	final String range = "profiles!A3:AR";
+	final String range = "Master!A3:BI";
 	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens")))
 		.setApplicationName(APPLICATION_NAME)
 		.build();
@@ -55,11 +55,11 @@ public class Sheet extends GoogleAPI {
 		logger.debug("\trow size: " + row.size());
 		logger.debug("\tlast slot: " + row.toString());
 		
-		PreparedStatement stmt = conn.prepareStatement("insert into drive.person values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::boolean,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		PreparedStatement stmt = conn.prepareStatement("insert into drive.person values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::boolean,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::int,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 		for (int i = 1; i <= row.size(); i++) {
 		    stmt.setString(i, row.get(i-1).toString());
 		}
-		for (int i = row.size()+1; i <= 44; i++) { // the API shorts us sometimes when rightmost cells are empty
+		for (int i = row.size()+1; i <= 61; i++) { // the API shorts us sometimes when rightmost cells are empty
 		    stmt.setString(i, null);
 		}
 		stmt.execute();

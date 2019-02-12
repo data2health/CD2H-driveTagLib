@@ -19,10 +19,9 @@ public class GitHubPush extends GoogleAPI {
     static LocalProperties github_props = null;
 
     static String me = "viewer { login,name,id }";
-    static String repo_list =
-	"viewer { repositories(first:50) {nodes {name,url}   } }";
+    static String repo_list = "viewer { repositories(first:50) {nodes {name,url}   } }";
+
     public static void main(String[] args) throws IOException, InterruptedException {
-//	Thread.sleep(30000);
 	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties("google");
 	github_props = PropertyLoader.loadProperties("github");

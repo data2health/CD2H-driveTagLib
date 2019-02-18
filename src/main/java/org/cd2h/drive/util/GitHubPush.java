@@ -67,7 +67,7 @@ public class GitHubPush extends GoogleAPI {
     static String members = "organization(login:data2health) {"
     	+ "	id,"
     	+ "	login,"
-    	+ "	repositories(first:100) {"
+    	+ "	repositories(first:100, orderBy:{field:NAME, direction: ASC}) {"
     	+ "		nodes {"
     	+ "			name,"
     	+ "			description,"

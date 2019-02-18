@@ -64,7 +64,7 @@ public class GitHubPush extends GoogleAPI {
     				+ ") {"
     				+ "	clientMutationId"
     				+ "}";
-    static String members = "organization(login:data2health) {"
+    static String data2health_org = "organization(login:data2health) {"
     	+ "	id,"
     	+ "	login,"
     	+ "	repositories(first:100, orderBy:{field:NAME, direction: ASC}) {"
@@ -137,7 +137,7 @@ public class GitHubPush extends GoogleAPI {
 //	results = theAPI.submitQuery(repo);
 //	logger.info("results:\n" + results.toString(3));
 	
-	results = theAPI.submitQuery(members);
+	results = theAPI.submitQuery(data2health_org);
 	logger.info("results:\n" + results.toString(3));
     }
     
@@ -148,7 +148,7 @@ public class GitHubPush extends GoogleAPI {
 	case "data2health_tagged_repos":
 	    return repoByTopic;
 	case "data2health_org":
-	    return members;
+	    return data2health_org;
 	default:
 	    return null;
 	}

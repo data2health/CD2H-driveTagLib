@@ -22,7 +22,28 @@ public class GitHubAPI {
 	this.github_props = github_props;
     }
 
-    public JSONObject submit(String query) throws IOException {
+    public JSONObject submitSearch(String search) throws IOException {
+	if (!search.matches(" *search.*"))
+	    throw new IOException("search request doesn't start with search");
+	// normalize search string to remove tabs, as GraphQL doesn't like them...
+	return submit(("{ \"query\": \"{" + quotify(search) + "}\" } ").replaceAll("[\t ]+", " "));
+    }
+
+    public JSONObject submitQuery(String query) throws IOException {
+	if (query.matches(" *search.*") || query.matches(" *update.*"))
+	    throw new IOException("query request doesn't start with valid object");
+	// normalize query string to remove tabs, as GraphQL doesn't like them...
+	return submit(("{ \"query\": \"query {" + query + "}\" } ").replaceAll("[\t ]+", " "));
+    }
+
+    public JSONObject submitMutation(String mutation) throws IOException {
+	if (!mutation.matches(" *update.*"))
+	    throw new IOException("mutation request doesn't start with update...");
+	// normalize mutation string to remove tabs, as GraphQL doesn't like them...
+	return submit(("{ \"query\": \"mutation {" + quotify(mutation) + "}\" } ").replaceAll("[\t ]+", " "));
+    }
+
+    private JSONObject submit(String request) throws IOException {
 	// configure the connection
 	URL uri = new URL("https://api.github.com/graphql");
 	HttpURLConnection con = (HttpURLConnection) uri.openConnection();
@@ -33,9 +54,9 @@ public class GitHubAPI {
 	con.setDoInput(true);
 	
 	// submit the GraphQL construct
-	logger.info("query: " + query);
+	logger.info("request: " + request);
 	BufferedWriter out = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-	out.write(query);
+	out.write(request);
 	out.flush();
 	out.close();
 
@@ -49,4 +70,7 @@ public class GitHubAPI {
 	return results;
     }
 
+    static String quotify(String theString) {
+	return theString.replace("\"", "\\\"");
+    }
 }

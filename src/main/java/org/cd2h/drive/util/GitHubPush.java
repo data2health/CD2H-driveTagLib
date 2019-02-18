@@ -19,7 +19,108 @@ public class GitHubPush extends GoogleAPI {
     static LocalProperties github_props = null;
 
     static String me = "viewer { login,name,id }";
-    static String repo_list = "viewer { repositories(first:50) {nodes {name,url}   } }";
+    static String repo_list = "viewer {"
+	    	+ "	repositories(first:100) {"
+	    	+ "		nodes {"
+	    	+ "			name,"
+	    	+ "			url,"
+	    	+ "			id,"
+	    	+ "			milestones(first:100) {"
+	    	+ "				nodes {"
+	    	+ "					id,"
+	    	+ "					title,"
+	    	+ "					description,"
+	    	+ "					dueOn,"
+	    	+ "					creator{login}"
+	    	+ "				}"
+	    	+ "			},"
+	    	+ "			repositoryTopics(first:100) {"
+	    	+ "				nodes {"
+	    	+ "					topic{name}"
+	    	+ "				}"
+	    	+ "			}"
+//	    	+ "			collaborators(first:100) {"
+//	    	+ "				nodes {"
+//	    	+ "					login,name"
+//	    	+ "				}"
+//	    	+ "			}"
+	    	+ "		}"
+	    	+ "	}"
+	    	+ "}";
+    static String repo = "repository(owner:eichmann, name:SPARQLTagLib) {"
+    	+ "	id,"
+    	+ "	url"
+    	+ "			repositoryTopics(first:100) {"
+    	+ "				nodes {"
+    	+ "					topic{name}"
+    	+ "				}"
+    	+ "			}"
+    	+ "}";
+    static String repo_mutate = " updateTopics ("
+    				+ "	input: {"
+    				+ "		repositoryId: \"MDEwOlJlcG9zaXRvcnkxMzQzMTU4NDk=\","
+    				+ "		topicNames:[\"data2health\", \"pea\"]"
+    				+ "	}"
+    				+ ") {"
+    				+ "	clientMutationId"
+    				+ "}";
+    static String members = "organization(login:data2health) {"
+    	+ "	id,"
+    	+ "	login,"
+    	+ "	repositories(first:100) {"
+    	+ "		nodes {"
+    	+ "			name,"
+    	+ "			description,"
+    	+ "			url,"
+    	+ "			milestones(first:100) {"
+    	+ "				nodes {"
+    	+ "					id,"
+    	+ "					title,"
+    	+ "					description,"
+    	+ "					dueOn,"
+    	+ "					creator{login}"
+    	+ "				}"
+    	+ "			},"
+    	+ "			repositoryTopics(first:100) {"
+    	+ "				nodes {"
+    	+ "					topic{name}"
+    	+ "				}"
+    	+ "			}"
+//    	+ "			collaborators(first:100) {"
+//    	+ "				nodes {"
+//    	+ "					login,name"
+//    	+ "				}"
+//    	+ "			}"
+    	+ "		}"
+    	+ "	}"
+    	+ "	members(first:100) {"
+    	+ "		nodes {"
+    	+ "			id,name,bio,email,login,avatarUrl"
+    	+ "		}"
+    	+ "	}"
+    	+ "}";
+    static String repoByTopic = "search(query: \"topic:data2health\", type: REPOSITORY, first:100) {"
+    				+ "	repositoryCount"
+    				+ "	edges {"
+    				+ "		node {"
+    				+ "		... on Repository {"
+    				+ "			owner {"
+    				+ "				id"
+    				+ "				login"
+    				+ "			}"
+    				+ "			name"
+    				+ "			description"
+    				+ "			stargazers {"
+    				+ "				totalCount"
+    				+ "			}"
+    				+ "			forks {"
+    				+ "				totalCount"
+    				+ "			}"
+    				+ "			updatedAt"
+    				+ "			}"
+    				+ "		}"
+    				+ "	}"
+    				+ "}";
 
     public static void main(String[] args) throws IOException, InterruptedException {
 	PropertyConfigurator.configure(args[0]);
@@ -27,8 +128,42 @@ public class GitHubPush extends GoogleAPI {
 	github_props = PropertyLoader.loadProperties("github");
 	
 	GitHubAPI theAPI = new GitHubAPI(github_props);
-	JSONObject results = theAPI.submit("{ \"query\": \"query {" + repo_list + "}\" } ");
+	
+	JSONObject results = null;
+	
+//	results = theAPI.submitMutation(repo_mutate);
+//	logger.info("results:\n" + results.toString(3));
+//	
+//	results = theAPI.submitQuery(repo);
+//	logger.info("results:\n" + results.toString(3));
+	
+	results = theAPI.submitQuery(members);
 	logger.info("results:\n" + results.toString(3));
+    }
+    
+    public static String getQuery(String name) {
+	switch(name) {
+	case "me":
+	    return me;
+	case "data2health_tagged_repos":
+	    return repoByTopic;
+	case "data2health_org":
+	    return members;
+	default:
+	    return null;
+	}
+    }
+    
+    public static String getQueryType(String name) {
+	switch(name) {
+	case "me":
+	case "data2health_org":
+	    return "query";
+	case "data2health_tagged_repos":
+	    return "search";
+	default:
+	    return null;
+	}
     }
     
     static void writeJSON() throws IOException {
@@ -62,9 +197,5 @@ public class GitHubPush extends GoogleAPI {
 
 	return buffer.toString();
     }
-    
-    static String quotify(String theString) {
-	return "\"" + theString.replace("\"", "\\\"") + "\"";
-    }
-    
+        
 }

@@ -35,7 +35,7 @@ public class Sheet extends GoogleAPI {
 	// Build a new authorized API client service.
 	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	final String spreadsheetId = prop_file.getProperty("sheets.spreadsheetId");
-	final String range = "Master!A3:BI";
+	final String range = "Master!A3:BN";
 	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens")))
 		.setApplicationName(APPLICATION_NAME)
 		.build();
@@ -52,14 +52,17 @@ public class Sheet extends GoogleAPI {
 		logger.info("\tfirst name: " + row.get(2));
 		logger.info("\tlast name: " + row.get(3));
 		logger.info("\tinstitution: " + row.get(4));
-		logger.debug("\trow size: " + row.size());
-		logger.debug("\tlast slot: " + row.toString());
+		logger.trace("\trow size: " + row.size());
+		logger.trace("\tlast slot: " + row.toString());
+		for (int i = 0; i <row.size(); i++)
+		    logger.trace("slot " + i + ": " + row.get(i));
 		
-		PreparedStatement stmt = conn.prepareStatement("insert into drive.person values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::boolean,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::int,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		// int at 52
+		PreparedStatement stmt = conn.prepareStatement("insert into drive.person values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?::int,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 		for (int i = 1; i <= row.size(); i++) {
 		    stmt.setString(i, row.get(i-1).toString());
 		}
-		for (int i = row.size()+1; i <= 61; i++) { // the API shorts us sometimes when rightmost cells are empty
+		for (int i = row.size()+1; i <=66; i++) { // the API shorts us sometimes when rightmost cells are empty
 		    stmt.setString(i, null);
 		}
 		stmt.execute();

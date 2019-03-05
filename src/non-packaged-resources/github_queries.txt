@@ -1,0 +1,44 @@
+{
+  search(query: "topic:data2health", type: REPOSITORY, first: 100) {
+    edges {
+      node {
+        ... on Repository{
+          name
+          description
+          milestones(states: OPEN) {
+            totalCount
+          }
+          issues(states: OPEN) {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}
+
+{
+  organization(login: data2health) {
+    repositories(first: 100) {
+      nodes {
+        name
+        description
+        url
+        milestones(first: 100) {
+          totalCount
+          nodes {
+            dueOn
+            closed
+          }
+        }
+        issues(first: 100) {
+          totalCount
+          nodes {
+            closed
+          }
+        }
+      }
+    }
+  }
+}
+

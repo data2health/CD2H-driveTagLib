@@ -274,11 +274,11 @@ comment on table google.working_group is 'CD2H Working Group';
 comment on column google.working_group.tag is 'Working Group acronym';
 comment on column google.working_group.name is 'Working Group name';
 
-create materialized view google.project as
+create  view google.project as
 select * from cd2h_phase2.proposal;
-comment on materialized view google.project is 'CD2H Phase 2 Project';
+comment on view google.project is E'@primaryKey id\nCD2H Phase 2 Project';
 
-create table google.person as
+create view google.person as
 select
     email_address,
     preferred_first_name,
@@ -286,90 +286,90 @@ select
     role_on_project
 from drive.person
 ;
-comment on materialized view google.person is E'@primaryKey email_address\nCD2H Participant';
+comment on view google.person is E'@primaryKey email_address\nCD2H Participant';
 comment on column google.person.email_address is 'email address';
 
-create view drive.role_staging as
+create view google.role as
     select 1 as id, email_address,role
-    from (select email_address,phase_ii_projects__institutional_informatics__research_it__a as role from master) as foo
+    from (select email_address,phase_ii_projects__institutional_informatics__research_it__a as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 2 as id, email_address,role
-    from (select email_address,phase_ii_projects__ctsa_data_sharing_governance_pathways_ as role from master) as foo
+    from (select email_address,phase_ii_projects__ctsa_data_sharing_governance_pathways_ as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 3 as id, email_address,role
-    from (select email_address,phase_ii_projects__architecting_attribution_  as role from master) as foo
+    from (select email_address,phase_ii_projects__architecting_attribution_  as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 4 as id, email_address,role
-    from (select email_address,phase_ii_projects__educational_resource_and_competency_harmo as role from master) as foo
+    from (select email_address,phase_ii_projects__educational_resource_and_competency_harmo as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 5 as id, email_address,role
-    from (select email_address,phase_ii_projects__health_open_terminology_fhir_server_ as role from master) as foo
+    from (select email_address,phase_ii_projects__health_open_terminology_fhir_server_ as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 6 as id, email_address,role
-    from (select email_address,phase_ii_projects__personas_for_clinical_and_translational_s as role from master) as foo
+    from (select email_address,phase_ii_projects__personas_for_clinical_and_translational_s as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 7 as id, email_address,role
-    from (select email_address,phase_ii_projects__reusable_data_best_practice_portal_ as role from master) as foo
+    from (select email_address,phase_ii_projects__reusable_data_best_practice_portal_ as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 8 as id, email_address,role
-    from (select email_address,phase_ii_projects__the_biodata_club_kit__supporting_data_sci as role from master) as foo
+    from (select email_address,phase_ii_projects__the_biodata_club_kit__supporting_data_sci as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 9 as id, email_address,role
-    from (select email_address,phase_ii_projects__data_quality_methods_and_tools_to_support as role from master) as foo
+    from (select email_address,phase_ii_projects__data_quality_methods_and_tools_to_support as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 10 as id, email_address,role
-    from (select email_address,phase_ii_projects__harmonizing_clinical_data_models_and_buil as role from master) as foo
+    from (select email_address,phase_ii_projects__harmonizing_clinical_data_models_and_buil as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 11 as id, email_address,role
-    from (select email_address,phase_ii_projects__loinc2hpo_semantic_phenotyping_tool_ as role from master) as foo
+    from (select email_address,phase_ii_projects__loinc2hpo_semantic_phenotyping_tool_ as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 12 as id, email_address,role
-    from (select email_address,phase_ii_projects__menrva__an_interdisciplinary_open_researc as role from master) as foo
+    from (select email_address,phase_ii_projects__menrva__an_interdisciplinary_open_researc as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 13 as id, email_address,role
-    from (select email_address,phase_ii_projects__patient_mortality_prediction_dream_challe as role from master) as foo
+    from (select email_address,phase_ii_projects__patient_mortality_prediction_dream_challe as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 14 as id, email_address,role
-    from (select email_address,phase_ii_projects__science_of_translational_science_research as role from master) as foo
+    from (select email_address,phase_ii_projects__science_of_translational_science_research as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 15 as id, email_address,role
-    from (select email_address,phase_ii_projects__sparc_in_the_cloud_for_ctsa_hubs_ as role from master) as foo
+    from (select email_address,phase_ii_projects__sparc_in_the_cloud_for_ctsa_hubs_ as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 16 as id, email_address,role
-    from (select email_address,phase_ii_projects__competitions_tool_for_ctsa_community_peer as role from master) as foo
+    from (select email_address,phase_ii_projects__competitions_tool_for_ctsa_community_peer as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 17 as id, email_address,role
-    from (select email_address,phase_ii_projects__open_source_clinical_enterprise_data_ware as role from master) as foo
+    from (select email_address,phase_ii_projects__open_source_clinical_enterprise_data_ware as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 18 as id, email_address,role
-    from (select email_address,phase_ii_projects__secure_cloud_based_infrastructure_for_cts as role from master) as foo
+    from (select email_address,phase_ii_projects__secure_cloud_based_infrastructure_for_cts as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 union
     select 19 as id, email_address,role
-    from (select email_address,phase_ii_projects__nlp_systematic_review_ as role from master) as foo
+    from (select email_address,phase_ii_projects__nlp_systematic_review_ as role from drive.person) as foo
     where role is not null and role != 'Not involved'
 ;
-comment on view role is E'@primaryKey id,email_address\nParticipation by person on project';
-comment on column role.id is E'@foreignKey (id) references project(id)';
-comment on column role.email_address is E'@foreignKey (email_address) references person(email_address)';
-comment on column role.role is 'Form of participation';
+	comment on view role is E'@primaryKey id,email_address\nParticipation by person on project';
+	comment on column role.id is E'@foreignKey (id) references project (id)\nproject id';
+	comment on column role.email_address is E'@foreignKey (email_address) references person\n@name email';
+	comment on column role.role is 'Form of participation';
 
 
 create table google.project as
@@ -382,3 +382,4 @@ create table google.role (
     role text,
     primary key (id,email_address)
 );
+

@@ -289,7 +289,8 @@ from drive.person
 comment on view google.person is E'@primaryKey email_address\nCD2H Participant';
 comment on column google.person.email_address is 'email address';
 
-create view google.role as
+--create view google.role as
+insert into google.role
     select 1 as id, email_address,role
     from (select email_address,phase_ii_projects__institutional_informatics__research_it__a as role from drive.person) as foo
     where role is not null and role != 'Not involved'
@@ -383,3 +384,6 @@ create table google.role (
     primary key (id,email_address)
 );
 
+
+
+insert into person select email_address,preferred_first_name,last_name,role_on_project,institution__,github_handle_url from drive.person;

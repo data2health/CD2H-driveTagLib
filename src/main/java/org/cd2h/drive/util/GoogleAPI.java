@@ -24,10 +24,10 @@ import edu.uiowa.extraction.LocalProperties;
 
 public class GoogleAPI {
     static LocalProperties prop_file = null;
-    static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    public static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     static Connection conn = null;
 
-    protected static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT, List<String> SCOPES, String credentials, String tokens) throws IOException {
+    public static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT, List<String> SCOPES, String credentials, String tokens) throws IOException {
 	// Load client secrets.
 	InputStream in = new FileInputStream(credentials);
 	GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));

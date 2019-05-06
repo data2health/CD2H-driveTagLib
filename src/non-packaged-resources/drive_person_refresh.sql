@@ -92,3 +92,4 @@ truncate google.role cascade;
 
 insert into google.person select person_id,email_address,preferred_first_name,last_name,role_on_project,institution,github_handle_url from drive.person_staging;
 insert into google.role select project_id,person_id,role from drive.role_staging;
+update google.role set role='Contributor' where role = 'Lead' and person_id not in (select person_id from google.person natural join google.cd2h_institution);

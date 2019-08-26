@@ -7,7 +7,8 @@ select
     role_on_project,
     institution,
     github_handle_url
-from drive.person;
+from drive.person
+where row__ != '';
 
 create or replace view drive.role_staging as
     select 1 as project_id, person_id,role

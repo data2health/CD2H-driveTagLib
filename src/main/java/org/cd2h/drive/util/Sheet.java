@@ -91,7 +91,7 @@ public class Sheet extends GoogleAPI {
 		    logger.trace("slot " + i + ": " + row.get(i));
 		
 		PreparedStatement stmt = conn.prepareStatement(insertStatement.toString());
-		for (int i = 1; i <= row.size(); i++) {
+		for (int i = 1; i <= row.size() && i <= rowCount; i++) {
 		    stmt.setString(i, row.get(i-1).toString());
 		}
 		for (int i = row.size()+1; i <=rowCount; i++) { // the API shorts us sometimes when rightmost cells are empty

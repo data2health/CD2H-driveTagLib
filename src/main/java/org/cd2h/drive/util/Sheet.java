@@ -25,24 +25,48 @@ public class Sheet extends GoogleAPI {
     static List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
     static Hashtable<String,String> attributeHash = new Hashtable<String,String>();
     static Hashtable<String,String> reservedHash = new Hashtable<String,String>();
+    
+    static String schema = null;
+    static String[] sheets = null;
+    static int skipCount = 0;
 
     public static void main(String... args) throws IOException, GeneralSecurityException, SQLException, ClassNotFoundException {
 	PropertyConfigurator.configure(args[0]);
-	prop_file = PropertyLoader.loadProperties("google");
+	prop_file = PropertyLoader.loadProperties(args[1]);
 	conn = getConnection();
+	
+	schema = prop_file.getProperty("jdbc.schema");
+	String sheetString = prop_file.getProperty("sheets.sheets");
+	sheets = sheetString.split(",");
+	logger.info("database schema: " + schema);
+	logger.info("sheets: " + arrayAsString(sheets));
+	
 	initializeReserveHash();
-	rebuildDrivePerson();
+	rebuildDriveSheetAsTable();
     }
     
-    static void rebuildDrivePerson() throws SQLException, GeneralSecurityException, IOException {
-	PreparedStatement dropStmt = conn.prepareStatement("drop table if exists drive.person cascade");
+    static void rebuildDriveSheetAsTable() throws SQLException, GeneralSecurityException, IOException {
+	for (String sheet : sheets) {
+	    attributeHash = new Hashtable<String,String>();
+	    rebuildDriveSheetAsTable(sheet, generateSQLName(sheet));
+	}
+    }
+    
+    static void rebuildDriveSheetAsTable(String sheet, String table) throws SQLException, GeneralSecurityException, IOException {
+	logger.info("loading sheet: " + sheet);
+	
+	PreparedStatement schemaStmt = conn.prepareStatement("create schema if not exists "+schema);
+	schemaStmt.execute();
+	schemaStmt.close();
+
+	PreparedStatement dropStmt = conn.prepareStatement("drop table if exists "+schema+"."+table+" cascade");
 	dropStmt.execute();
 	dropStmt.close();
 
 	// Build a new authorized API client service.
 	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	final String spreadsheetId = prop_file.getProperty("sheets.spreadsheetId");
-	final String range = "Master";
+	final String range = sheet;
 	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens")))
 		.setApplicationName(APPLICATION_NAME)
 		.build();
@@ -54,17 +78,14 @@ public class Sheet extends GoogleAPI {
 	if (values == null || values.isEmpty()) {
 	    logger.error("No data found.");
 	} else {
-	    boolean first = true;
-	    boolean second = true;
 	    int rowCount = 0;
-	    StringBuffer insertStatement = new StringBuffer("insert into drive.person values(");
+	    StringBuffer insertStatement = new StringBuffer("insert into "+schema+"."+table+" values(");
 	    for (List<?> row : values) {
-		if (first) {
-		    first = false;
+		if (skipCount > rowCount) {
 		    continue;
 		}
-		if (second) {
-		    StringBuffer createStatement = new StringBuffer("create table drive.person(");
+		if (skipCount == rowCount) {
+		    StringBuffer createStatement = new StringBuffer("create table "+schema+"."+table+"(");
 		    logger.info("\trow size: " + row.size());
 		    logger.debug("\tslots: " + row.toString());
 		    rowCount = row.size();
@@ -79,7 +100,6 @@ public class Sheet extends GoogleAPI {
 		    PreparedStatement createStmt = conn.prepareStatement(createStatement.toString());
 		    createStmt.execute();
 		    createStmt.close();
-		    second = false;
 		    continue;
 		}
 		logger.debug("timestamp: " + row.get(0));
@@ -101,7 +121,7 @@ public class Sheet extends GoogleAPI {
 		stmt.close();
 		personCount++;
 	    }
-	    logger.info("persons loaded: " + personCount);
+	    logger.info(sheet + " loaded: " + personCount);
 	}
     }
 
@@ -228,5 +248,16 @@ public class Sheet extends GoogleAPI {
 	reservedHash.put("WHERE", "WHERE");
 	reservedHash.put("WINDOW", "WINDOW");
 	reservedHash.put("WITH", "WITH");
+   }
+
+   static String arrayAsString(String[] array) {
+	StringBuffer result = new StringBuffer("[");
+	for (int i = 0; i < array.length; i++) {
+	    if (i>0)
+		result.append(", ");
+	    result.append(array[i]);
+	}
+	result.append("]");
+	return result.toString();
    }
 }

@@ -37,6 +37,7 @@ public class Sheet extends GoogleAPI {
 	
 	schema = prop_file.getProperty("jdbc.schema");
 	String sheetString = prop_file.getProperty("sheets.sheets");
+	skipCount = Integer.parseInt(prop_file.getProperty("sheets.skipcount"));
 	sheets = sheetString.split(",");
 	logger.info("database schema: " + schema);
 	logger.info("sheets: " + arrayAsString(sheets));
@@ -78,13 +79,15 @@ public class Sheet extends GoogleAPI {
 	if (values == null || values.isEmpty()) {
 	    logger.error("No data found.");
 	} else {
+	    int rowNum = 0;
 	    int rowCount = 0;
 	    StringBuffer insertStatement = new StringBuffer("insert into "+schema+"."+table+" values(");
 	    for (List<?> row : values) {
-		if (skipCount > rowCount) {
+		if (skipCount > rowNum) {
+		    rowNum++;
 		    continue;
 		}
-		if (skipCount == rowCount) {
+		if (skipCount == rowNum) {
 		    StringBuffer createStatement = new StringBuffer("create table "+schema+"."+table+"(");
 		    logger.info("\trow size: " + row.size());
 		    logger.debug("\tslots: " + row.toString());
@@ -100,19 +103,25 @@ public class Sheet extends GoogleAPI {
 		    PreparedStatement createStmt = conn.prepareStatement(createStatement.toString());
 		    createStmt.execute();
 		    createStmt.close();
+		    rowNum++;
 		    continue;
 		}
-		logger.debug("timestamp: " + row.get(0));
-		logger.debug("\temail: " + row.get(1));
-		logger.debug("\tfirst name: " + row.get(2));
-		logger.debug("\tlast name: " + row.get(3));
-		logger.debug("\tinstitution: " + row.get(4));
+//		logger.debug("timestamp: " + row.get(0));
+//		logger.debug("\temail: " + row.get(1));
+//		logger.debug("\tfirst name: " + row.get(2));
+//		logger.debug("\tlast name: " + row.get(3));
+//		logger.debug("\tinstitution: " + row.get(4));
 		for (int i = 0; i <row.size(); i++)
 		    logger.trace("slot " + i + ": " + row.get(i));
 		
 		PreparedStatement stmt = conn.prepareStatement(insertStatement.toString());
 		for (int i = 1; i <= row.size() && i <= rowCount; i++) {
-		    stmt.setString(i, row.get(i-1).toString());
+		    String value = row.get(i-1).toString();
+		    if (value != null)
+			value = value.trim();
+		    if (value != null && value.length() == 0)
+			value = null;
+		    stmt.setString(i, value);
 		}
 		for (int i = row.size()+1; i <=rowCount; i++) { // the API shorts us sometimes when rightmost cells are empty
 		    stmt.setString(i, null);

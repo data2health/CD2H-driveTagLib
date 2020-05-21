@@ -37,7 +37,8 @@ public class Sheet extends GoogleAPI {
 	
 	schema = prop_file.getProperty("jdbc.schema");
 	String sheetString = prop_file.getProperty("sheets.sheets");
-	skipCount = Integer.parseInt(prop_file.getProperty("sheets.skipcount"));
+	if (prop_file.getProperty("sheets.skipcount") != null)
+	    skipCount = Integer.parseInt(prop_file.getProperty("sheets.skipcount"));
 	sheets = sheetString.split(",");
 	logger.info("database schema: " + schema);
 	logger.info("sheets: " + arrayAsString(sheets));

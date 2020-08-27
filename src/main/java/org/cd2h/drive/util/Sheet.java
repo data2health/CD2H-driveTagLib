@@ -4,6 +4,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import edu.uiowa.extraction.PropertyLoader;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -22,7 +24,7 @@ import org.apache.log4j.PropertyConfigurator;
 public class Sheet extends GoogleAPI {
     static Logger logger = Logger.getLogger(Sheet.class);
     static String APPLICATION_NAME = "CD2H Onboarding Sync";
-    static List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
+    static List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     static Hashtable<String,String> attributeHash = new Hashtable<String,String>();
     static Hashtable<String,String> reservedHash = new Hashtable<String,String>();
     
@@ -47,6 +49,20 @@ public class Sheet extends GoogleAPI {
 	rebuildDriveSheetAsTable();
     }
     
+    static public UpdateValuesResponse updateValues(String spreadsheetId, String range, String valueInputOption, List<List<Object>> values) throws IOException, GeneralSecurityException {
+	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT, SCOPES, prop_file.getProperty("sheets.credentials"), prop_file.getProperty("sheets.tokens")))
+		.setApplicationName(APPLICATION_NAME)
+		.build();
+	ValueRange body = new ValueRange().setValues(values);
+	UpdateValuesResponse result = service.spreadsheets().values()
+		.update(spreadsheetId, range, body)
+		.setValueInputOption(valueInputOption)
+		.execute();
+	logger.info(result.getUpdatedCells() + " cells updated.");
+	return result;
+    }
+
     static void rebuildDriveSheetAsTable() throws SQLException, GeneralSecurityException, IOException {
 	for (String sheet : sheets) {
 	    attributeHash = new Hashtable<String,String>();

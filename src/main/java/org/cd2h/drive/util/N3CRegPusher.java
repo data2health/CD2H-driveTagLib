@@ -30,7 +30,7 @@ public class N3CRegPusher extends Sheet {
 	List<List<Object>> values = new ArrayList<List<Object>>();
 	int rowCount = 0;
 	
-	PreparedStatement stmt = conn.prepareStatement("select email,official_first_name,official_last_name,first_name,last_name,'',institution,'',orcid_id,gsuite_email,slack_id,github_id,twitter_id,expertise,therapeutic_area,assistant_email,enclave,workstreams,created,updated,official_full_name,official_institution,emailed from n3c_admin.registration order by last_name,first_name");
+	PreparedStatement stmt = conn.prepareStatement("select registration.email,official_first_name,official_last_name,first_name,last_name,coalesce(ror_id,''),ror_name,'',orcid_id,gsuite_email,slack_id,github_id,twitter_id,expertise,therapeutic_area,assistant_email,enclave,workstreams,created,updated,official_full_name,official_institution,emailed from n3c_admin.registration left outer join n3c_admin.user_org_map on registration.email=user_org_map.email order by last_name,first_name");
 	ResultSet rs = stmt.executeQuery();
 	while (rs.next()) {
 	    List<Object> resultRow = new ArrayList<Object>();

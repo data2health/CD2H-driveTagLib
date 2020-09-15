@@ -34,8 +34,13 @@ public class N3CRegPusher extends Sheet {
 	ResultSet rs = stmt.executeQuery();
 	while (rs.next()) {
 	    List<Object> resultRow = new ArrayList<Object>();
-	    for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++)
-		resultRow.add(rs.getString(i));
+	    for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+		String value = rs.getString(i);
+		if (value == null)
+		    resultRow.add("");
+		else
+		    resultRow.add(value);
+	    }
 	    values.add(resultRow);
 	    rowCount++;
 	}

@@ -53,7 +53,7 @@ public class PASCRegPusher extends Sheet {
 	logger.info("skip count: " + prop_file.getProperty("sheets.skipcount"));
 	StringBuffer buffer = new StringBuffer(prop_file.getProperty("sheets.sheets")
 						+ "!A" + getStartRow(values)
-						+ ":AF" + getEndRow(values));
+						+ ":AH" + getEndRow(values));
 	logger.info("range: " + buffer.toString());
 	return buffer.toString();
     }

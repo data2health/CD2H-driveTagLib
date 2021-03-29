@@ -43,6 +43,7 @@ public class Sheet extends GoogleAPI {
 	    skipCount = Integer.parseInt(prop_file.getProperty("sheets.skipcount"));
 	sheets = sheetString.split(",");
 	logger.info("database schema: " + schema);
+	logger.info("database table: " + prop_file.getProperty("jdbc.table"));
 	logger.info("sheets: " + arrayAsString(sheets));
 	
 	initializeReserveHash();
@@ -66,7 +67,7 @@ public class Sheet extends GoogleAPI {
     static void rebuildDriveSheetAsTable() throws SQLException, GeneralSecurityException, IOException {
 	for (String sheet : sheets) {
 	    attributeHash = new Hashtable<String,String>();
-	    rebuildDriveSheetAsTable(sheet, generateSQLName(sheet));
+	    rebuildDriveSheetAsTable(sheet, prop_file.getProperty("jdbc.table", generateSQLName(sheet)));
 	}
     }
     

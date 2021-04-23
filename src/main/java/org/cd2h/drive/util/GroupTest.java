@@ -1,3 +1,4 @@
+package org.cd2h.drive.util;
 // Copyright 2018 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +57,7 @@ public class GroupTest {
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
-        InputStream in = AdminSDKDirectoryQuickstart.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        InputStream in = GroupTest.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
         }

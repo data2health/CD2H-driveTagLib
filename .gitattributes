@@ -12,6 +12,7 @@ src/main/java/org/cd2h/drive/util/CTSAAwardPusher.java -text
 src/main/java/org/cd2h/drive/util/GitHubPush.java -text
 src/main/java/org/cd2h/drive/util/GoogleAPI.java -text
 src/main/java/org/cd2h/drive/util/Group.java -text
+src/main/java/org/cd2h/drive/util/GroupDir.java -text
 src/main/java/org/cd2h/drive/util/GroupTest.java -text
 src/main/java/org/cd2h/drive/util/Harvester.java -text
 src/main/java/org/cd2h/drive/util/N3CCohortPusher.java -text

@@ -20,7 +20,7 @@ public class GroupTest {
 
     public static void main(String... args) throws IOException, GeneralSecurityException {
     	List<String> scopes = Arrays.asList("https://www.googleapis.com/auth/admin.directory.group","https://www.googleapis.com/auth/admin.directory.group.member");
-    	GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream("/Users/eichmann/key.json")).createScoped(scopes);
+    	GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream("/Users/eichmann/Documents/Components/google_credentials/keats.json")).createScoped(scopes);
     	credential.refreshToken();
     	System.out.println("access token: " + credential.getAccessToken());
 
@@ -42,7 +42,7 @@ public class GroupTest {
 //            System.out.println(member.toString());
 //        }
        
-        Directory.Members.List result = service.members().list("N3C Admin");
+        Directory.Members.List result = service.members().list("025b2l0r0sq7ka1");
         Members members = result.execute();
         System.out.println("Members of n3c-admin");
         for (Member member : members.getMembers()) {

@@ -27,6 +27,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryScopes;
+import com.google.api.services.admin.directory.model.Groups;
 import com.google.api.services.admin.directory.model.User;
 import com.google.api.services.admin.directory.model.Users;
 
@@ -84,21 +85,46 @@ public class GroupDir {
              .setApplicationName(APPLICATION_NAME)
              .build();
 
-     // Print the first 10 users in the domain.
+//		Groups groups = service.groups().list().execute();
+//		// fill list of users by next page
+//		boolean next = (groups.getNextPageToken() != null);
+//		while (next) {
+//			Groups groups2 = service.groups().list().setPageToken(groups.getNextPageToken()).execute();
+//				System.out.println("group: " + groups2.toPrettyString());
+// 			groups.getGroups().addAll(groups2.getGroups());
+//			groups.setNextPageToken(groups2.getNextPageToken());
+//			next = (groups2.getNextPageToken() != null);
+//		}
+
+		Users users = service.users().list().setCustomer("my_customer").setMaxResults(500).setOrderBy("email").execute();
+		// fill list of users by next page
+		boolean next = (users.getNextPageToken() != null);
+		while (next) {
+			Users users2 = service.users().list().setCustomer("my_customer").setMaxResults(500).setOrderBy("email").setPageToken(users.getNextPageToken()).execute();
+			users.getUsers().addAll(users2.getUsers());
+			users.setNextPageToken(users2.getNextPageToken());
+			next = (users.getNextPageToken() != null);
+		}
+		for (User user : users.getUsers()) {
+	             System.out.println(user.getName().getFullName() +  " : " + user.getPrimaryEmail());
+	         }
+
+		// Print the first 10 users in the domain.
      Users result = service.users().list()
              .setCustomer("my_customer")
 //             .setMaxResults(10)
              .setOrderBy("email")
              .execute();
-     List<User> users = result.getUsers();
-     if (users == null || users.size() == 0) {
-         System.out.println("No users found.");
-     } else {
-         System.out.println("Users:");
-         for (User user : users) {
-             System.out.println(user.getName().getFullName() +  " : " + user.getPrimaryEmail());
-         }
-     }
+
+//     List<User> users = result.getUsers();
+//     if (users == null || users.size() == 0) {
+//         System.out.println("No users found.");
+//     } else {
+//         System.out.println("Users:");
+//         for (User user : users) {
+//             System.out.println(user.getName().getFullName() +  " : " + user.getPrimaryEmail() + " : " + user.toPrettyString());
+//         }
+//     }
  }
 }
 //[END admin_sdk_directory_quickstart]

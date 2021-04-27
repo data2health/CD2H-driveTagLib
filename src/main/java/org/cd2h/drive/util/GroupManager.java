@@ -72,6 +72,12 @@ public class GroupManager extends GoogleAPI {
 		case "members":
 			members(service, "025b2l0r0sq7ka1");
 			break;
+		case "insert":
+			insertMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
+			break;
+		case "delete":
+			deleteMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
+			break;
 		}
 	}
 
@@ -143,6 +149,16 @@ public class GroupManager extends GoogleAPI {
         for (Member member : members.getMembers()) {
             System.out.println(member.toPrettyString());
         }
+	}
+	
+	static void insertMember(Directory service, String groupKey, String email) throws IOException {
+		Member newMember = new Member();
+		newMember.setEmail(email);
+		service.members().insert(groupKey, newMember).execute();
+	}
+
+	static void deleteMember(Directory service, String groupKey, String email) throws IOException {
+		service.members().delete(groupKey, email).execute();
 	}
 
 }

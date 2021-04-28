@@ -12,6 +12,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryScopes;
+import com.google.api.services.admin.directory.model.Group;
 import com.google.api.services.admin.directory.model.Groups;
 import com.google.api.services.admin.directory.model.Member;
 import com.google.api.services.admin.directory.model.Members;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -101,10 +103,9 @@ public class GroupManager extends GoogleAPI {
 		return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 	}
 
-	static void groups(Directory service) throws IOException {
+	static void groups(Directory service) throws IOException, SQLException {
 		System.out.println("Groups:");
 		Groups groups = service.groups().list().setDomain("ctsa.io").execute();
-		System.out.println("group: " + groups.toPrettyString());
 		// fill list of users by next page
 		boolean next = (groups.getNextPageToken() != null);
 		while (next) {
@@ -114,9 +115,19 @@ public class GroupManager extends GoogleAPI {
 			groups.setNextPageToken(groups2.getNextPageToken());
 			next = (groups2.getNextPageToken() != null);
 		}
+		for (Group group : groups.getGroups()) {
+			System.out.println("Group: " + group.toPrettyString());
+			
+			PreparedStatement stmt = conn.prepareStatement("insert into n3c_groups.group_raw values(?::jsonb)");
+			stmt.setString(1, group.toPrettyString());
+			stmt.execute();
+			stmt.close();
+		}
 	}
 
-	static void users(Directory service) throws IOException {
+	static void users(Directory service) throws IOException, SQLException {
+		simpleStmt("truncate n3c_groups.user_raw");
+		
 		System.out.println("Users:");
 		Users users = service.users().list()
 				.setCustomer("my_customer")
@@ -139,6 +150,11 @@ public class GroupManager extends GoogleAPI {
 		for (User user : users.getUsers()) {
 //			System.out.println(user.getName().getFullName() + " : " + user.getPrimaryEmail());
 			System.out.println(user.getName().getFullName() + " : " + user.getPrimaryEmail() + " : " + user.toPrettyString());
+			
+			PreparedStatement stmt = conn.prepareStatement("insert into n3c_groups.user_raw values(?::jsonb)");
+			stmt.setString(1, user.toPrettyString());
+			stmt.execute();
+			stmt.close();
 		}
 	}
 
@@ -161,4 +177,15 @@ public class GroupManager extends GoogleAPI {
 		service.members().delete(groupKey, email).execute();
 	}
 
+	public static void simpleStmt(String queryString) {
+		try {
+			logger.debug("executing " + queryString + "...");
+			PreparedStatement beginStmt = conn.prepareStatement(queryString);
+			beginStmt.executeUpdate();
+			beginStmt.close();
+		} catch (Exception e) {
+			logger.error("Error in database initialization: " + e);
+			e.printStackTrace();
+		}
+	}
 }

@@ -29,5 +29,6 @@ src/non-packaged-resources/drive.sql -text
 src/non-packaged-resources/drive_person_refresh.sql -text
 src/non-packaged-resources/github_queries.txt -text
 src/non-packaged-resources/n3c_admin.sql -text
+src/non-packaged-resources/n3c_groups.sql -text
 src/test/java/org/cd2h/drive/README.txt -text
 src/test/resources/README.txt -text

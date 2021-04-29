@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +73,7 @@ public class GroupManager extends GoogleAPI {
 			users(service);
 			break;
 		case "members":
-			members(service, "025b2l0r0sq7ka1");
+			members(service);
 			break;
 		case "insert":
 			insertMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
@@ -158,12 +159,31 @@ public class GroupManager extends GoogleAPI {
 		}
 	}
 
-	static void members(Directory service, String groupKey) throws IOException {
+	static void members(Directory service) throws IOException, SQLException {
+		simpleStmt("truncate n3c_groups.google_member_raw");
+		
+		PreparedStatement stmt = conn.prepareStatement("select id from n3c_groups.google_group");
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			String id = rs.getString(1);
+			members(service, id);
+		}
+	}
+	
+	static void members(Directory service, String groupKey) throws IOException, SQLException {
         Directory.Members.List result = service.members().list(groupKey);
         Members members = result.execute();
-        System.out.println("Members of n3c-admin");
+        if (members.getMembers() == null)
+        	return;	
+        System.out.println("Members of " + groupKey);
         for (Member member : members.getMembers()) {
             System.out.println(member.toPrettyString());
+			
+			PreparedStatement stmt = conn.prepareStatement("insert into n3c_groups.google_member_raw values(?,?::jsonb)");
+			stmt.setString(1, groupKey);
+			stmt.setString(2, member.toPrettyString());
+			stmt.execute();
+			stmt.close();
         }
 	}
 	

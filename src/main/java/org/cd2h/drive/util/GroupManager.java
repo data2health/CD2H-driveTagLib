@@ -73,7 +73,7 @@ public class GroupManager extends GoogleAPI {
 			users(service);
 			break;
 		case "members":
-			members(service);
+			listMembers(service, "025b2l0r0sq7ka1");
 			break;
 		case "insert":
 			insertMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
@@ -187,9 +187,28 @@ public class GroupManager extends GoogleAPI {
         }
 	}
 	
+	static void listMembers(Directory service, String groupKey) throws IOException, SQLException {
+        Directory.Members.List result = service.members().list(groupKey);
+        Members members = result.execute();
+        if (members.getMembers() == null)
+        	return;	
+        System.out.println("Members of " + groupKey);
+        for (Member member : members.getMembers()) {
+            System.out.println(member.toPrettyString());
+//            System.out.println(member.getDeliverySettings()); // this always seems to return null...
+            /*
+             * per Keats - a direct call for a specific member returns the delivery settings:
+             * Member m = service.members().get(grpKey, memberAddr).execute();
+             * System.out.println(m.getDeliverySettings());
+             */
+        }
+	}
+	
 	static void insertMember(Directory service, String groupKey, String email) throws IOException {
 		Member newMember = new Member();
 		newMember.setEmail(email);
+		newMember.setDeliverySettings("DIGEST");
+		newMember.setRole("MANAGER");
 		service.members().insert(groupKey, newMember).execute();
 	}
 

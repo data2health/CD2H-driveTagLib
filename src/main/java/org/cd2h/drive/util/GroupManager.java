@@ -30,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -80,6 +81,13 @@ public class GroupManager extends GoogleAPI {
 			break;
 		case "delete":
 			deleteMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
+			break;
+		case "admin":
+			Hashtable<String,String> cache = currentMembers(service, "025b2l0r0sq7ka1");
+			populate(cache,service, "025b2l0r0sq7ka1");
+			break;
+		case "purge":
+			purge(service, "025b2l0r0sq7ka1");
 			break;
 		}
 	}
@@ -202,6 +210,80 @@ public class GroupManager extends GoogleAPI {
              * System.out.println(m.getDeliverySettings());
              */
         }
+	}
+	
+	static Hashtable<String,String> currentMembers(Directory service, String groupKey) throws IOException, SQLException {
+		Hashtable<String,String> cache = new Hashtable<String,String>();
+        Directory.Members.List result = service.members().list(groupKey);
+        Members members = result.execute();
+        if (members.getMembers() == null)
+        	return cache;	
+        System.out.println("Members of " + groupKey);
+        for (Member member : members.getMembers()) {
+        	cache.put(member.getEmail(), member.getEmail());
+        }
+        return cache;
+	}
+	
+	static void populate(Hashtable<String,String> cache, Directory service, String groupKey) throws SQLException, IOException {
+		PreparedStatement stmt = conn.prepareStatement("select email_address,nickname,group_status,email_preference from n3c_groups.n3c_admin");
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			String email = rs.getString(1);
+			String nickname = rs.getString(2);
+			String status = rs.getString(3);
+			String preference = rs.getString(4);
+			
+			if (cache.containsKey(email)) {
+				logger.info("existing user: " + email + " : " + nickname);
+				continue;
+			}
+			
+			logger.info("adding user: " + email + " : " + nickname);
+
+			Member newMember = new Member();
+			newMember.setEmail(email);
+			switch (preference) {
+			case "email":
+				newMember.setDeliverySettings("ALL_MAIL");
+				break;
+			case "no email":
+				newMember.setDeliverySettings("NONE");
+				break;
+			case "digest":
+				newMember.setDeliverySettings("DIGEST");
+				break;
+			}
+			switch (status) {
+			case "member":
+				newMember.setRole("MEMBER");
+				break;
+			case "owner":
+				newMember.setRole("OWNER");
+				break;
+			case "manager":
+				newMember.setRole("MANAGER");
+				break;
+			}
+			service.members().insert(groupKey, newMember).execute();
+			
+		}
+		stmt.close();
+	}
+	
+	static void purge(Directory service, String groupKey) throws SQLException, IOException {
+		PreparedStatement stmt = conn.prepareStatement("select email_address from n3c_groups.n3c_admin");
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			String email = rs.getString(1);
+			logger.info("removing user: " + email);
+			try {
+				service.members().delete(groupKey, email).execute();
+			} catch (IOException e) {
+				logger.error("error raised: " + e);
+			}
+		}
+		stmt.close();
 	}
 	
 	static void insertMember(Directory service, String groupKey, String email) throws IOException {

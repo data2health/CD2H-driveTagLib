@@ -83,8 +83,8 @@ public class GroupManager extends GoogleAPI {
 			deleteMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
 			break;
 		case "admin":
-			Hashtable<String,String> cache = currentMembers(service, "025b2l0r0sq7ka1");
-			populate(cache,service, "025b2l0r0sq7ka1");
+			Hashtable<String,String> cache = currentMembers(service, "040ew0vw1p0o54r");
+			populate(cache,service, "040ew0vw1p0o54r");
 			break;
 		case "purge":
 			purge(service, "025b2l0r0sq7ka1");
@@ -113,6 +113,8 @@ public class GroupManager extends GoogleAPI {
 	}
 
 	static void groups(Directory service) throws IOException, SQLException {
+		simpleStmt("truncate n3c_groups.google_group_raw");
+
 		System.out.println("Groups:");
 		Groups groups = service.groups().list().setDomain("ctsa.io").execute();
 		// fill list of users by next page
@@ -127,7 +129,7 @@ public class GroupManager extends GoogleAPI {
 		for (Group group : groups.getGroups()) {
 			System.out.println("Group: " + group.toPrettyString());
 			
-			PreparedStatement stmt = conn.prepareStatement("insert into n3c_groups.group_raw values(?::jsonb)");
+			PreparedStatement stmt = conn.prepareStatement("insert into n3c_groups.google_group_raw values(?::jsonb)");
 			stmt.setString(1, group.toPrettyString());
 			stmt.execute();
 			stmt.close();
@@ -226,7 +228,7 @@ public class GroupManager extends GoogleAPI {
 	}
 	
 	static void populate(Hashtable<String,String> cache, Directory service, String groupKey) throws SQLException, IOException {
-		PreparedStatement stmt = conn.prepareStatement("select email_address,nickname,group_status,email_preference from n3c_groups.n3c_admin");
+		PreparedStatement stmt = conn.prepareStatement("select email_address,nickname,group_status,email_preference from n3c_groups.n3c_allhands");
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			String email = rs.getString(1);
@@ -265,14 +267,19 @@ public class GroupManager extends GoogleAPI {
 				newMember.setRole("MANAGER");
 				break;
 			}
-			service.members().insert(groupKey, newMember).execute();
+			try {
+				service.members().insert(groupKey, newMember).execute();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		}
 		stmt.close();
 	}
 	
 	static void purge(Directory service, String groupKey) throws SQLException, IOException {
-		PreparedStatement stmt = conn.prepareStatement("select email_address from n3c_groups.n3c_admin");
+		PreparedStatement stmt = conn.prepareStatement("select email_address from n3c_groups.n3c_allhands");
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			String email = rs.getString(1);

@@ -185,6 +185,7 @@ public class GroupManager extends GoogleAPI {
 	}
 	
 	static void members(Directory service, String groupKey) throws IOException, SQLException {
+		int count = 0;
         Directory.Members.List result = service.members().list(groupKey);
         Members members = result.execute();
         if (members.getMembers() == null)
@@ -201,16 +202,19 @@ public class GroupManager extends GoogleAPI {
 			members.setNextPageToken(members2.getNextPageToken());
 			next = (members.getNextPageToken() != null);
 		}
-        System.out.println("Members of " + groupKey);
+        logger.info("Members of " + groupKey);
         for (Member member : members.getMembers()) {
-            System.out.println(member.toPrettyString());
+            logger.debug(member.toPrettyString());
 			
 			PreparedStatement stmt = conn.prepareStatement("insert into n3c_groups.google_member_raw values(?,?::jsonb)");
 			stmt.setString(1, groupKey);
 			stmt.setString(2, member.toPrettyString());
 			stmt.execute();
 			stmt.close();
+			
+			count++;
         }
+        logger.info("\tcount: " + count);
 	}
 	
 	static void newMembers(Directory service, String groupKey) throws SQLException, IOException {
@@ -230,8 +234,7 @@ public class GroupManager extends GoogleAPI {
 			try {
 				service.members().insert(groupKey, newMember).execute();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info("\t*** insert error ***");
 			}
 			
 		}

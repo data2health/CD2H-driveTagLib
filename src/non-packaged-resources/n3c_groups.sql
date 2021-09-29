@@ -69,14 +69,18 @@ select
 from n3c_groups.google_member_raw
 ;
 
+create table n3c_groups.member_error(email text);
+
 create view n3c_groups.new_member as
 select
 	coalesce(case when gsuite_email = '' then null else gsuite_email end,email) as email,
 	last_name||', '||first_name as name,
 	created
 from n3c_admin.registration
-where lower(email) not in (select lower(email) from google_member where gid='040ew0vw1p0o54r')
-  and lower(gsuite_email) not in (select lower(email) from google_member where gid='040ew0vw1p0o54r')
+where lower(email) not in (select lower(email) from n3c_groups.google_member where gid='040ew0vw1p0o54r')
+  and lower(gsuite_email) not in (select lower(email) from n3c_groups.google_member where gid='040ew0vw1p0o54r')
+  and lower(email) not in (select lower(email) from n3c_groups.member_error)
+  and lower(gsuite_email) not in (select lower(email) from n3c_groups.member_error)
   and email != ''
 order by created
 ;

@@ -74,7 +74,11 @@ public class GroupManager extends GoogleAPI {
 			users(service);
 			break;
 		case "members":
-			listMembers(service, "025b2l0r0sq7ka1");
+			members(service, "040ew0vw1p0o54r");
+			break;
+		case "refresh":
+			members(service, "040ew0vw1p0o54r");
+			newMembers(service, "040ew0vw1p0o54r");
 			break;
 		case "insert":
 			insertMember(service, "025b2l0r0sq7ka1", "david.eichmann@gmail.com");
@@ -185,6 +189,18 @@ public class GroupManager extends GoogleAPI {
         Members members = result.execute();
         if (members.getMembers() == null)
         	return;	
+		boolean next = (members.getNextPageToken() != null);
+		while (next) {
+			Members members2 = service.members().list(groupKey)
+//					.setCustomer("my_customer")
+//					.setMaxResults(500)
+//					.setOrderBy("email")
+					.setPageToken(members.getNextPageToken())
+					.execute();
+			members.getMembers().addAll(members2.getMembers());
+			members.setNextPageToken(members2.getNextPageToken());
+			next = (members.getNextPageToken() != null);
+		}
         System.out.println("Members of " + groupKey);
         for (Member member : members.getMembers()) {
             System.out.println(member.toPrettyString());
@@ -197,6 +213,31 @@ public class GroupManager extends GoogleAPI {
         }
 	}
 	
+	static void newMembers(Directory service, String groupKey) throws SQLException, IOException {
+		PreparedStatement stmt = conn.prepareStatement("select email,name from n3c_groups.new_member");
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			String email = rs.getString(1);
+			String name = rs.getString(2);
+			
+			logger.info("adding user: " + email + " : " + name);
+
+			Member newMember = new Member();
+			newMember.setEmail(email);
+			newMember.setDeliverySettings("ALL_MAIL");
+			newMember.setRole("MEMBER");
+
+			try {
+				service.members().insert(groupKey, newMember).execute();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		stmt.close();
+	}
+
 	static void listMembers(Directory service, String groupKey) throws IOException, SQLException {
         Directory.Members.List result = service.members().list(groupKey);
         Members members = result.execute();

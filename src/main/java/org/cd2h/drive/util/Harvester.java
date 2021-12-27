@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -23,12 +23,11 @@ import com.google.api.services.drive.model.User;
 import edu.uiowa.extraction.PropertyLoader;
 
 public class Harvester extends GoogleAPI {
-    static Logger logger = Logger.getLogger(Harvester.class);
+	static Logger logger = LogManager.getLogger(Harvester.class);
     static String APPLICATION_NAME = "CD2H Drive Monitor";
     static List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_METADATA_READONLY);
     
     public static void main(String[] args) throws GeneralSecurityException, IOException, ClassNotFoundException, SQLException {
-	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties("google");
 	conn = getConnection();
 

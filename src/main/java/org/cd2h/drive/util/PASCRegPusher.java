@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.PropertyConfigurator;
-
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 
 import edu.uiowa.extraction.PropertyLoader;
@@ -17,7 +15,6 @@ import edu.uiowa.extraction.PropertyLoader;
 public class PASCRegPusher extends Sheet {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException, GeneralSecurityException {
-	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties("gsuite_pasc");
 	conn = getConnection();
 

@@ -13,16 +13,15 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Sheet extends GoogleAPI {
-    static Logger logger = Logger.getLogger(Sheet.class);
+	static Logger logger = LogManager.getLogger(Sheet.class);
     static String APPLICATION_NAME = "CD2H Onboarding Sync";
     static List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     static Hashtable<String,String> attributeHash = new Hashtable<String,String>();
@@ -33,7 +32,6 @@ public class Sheet extends GoogleAPI {
     static int skipCount = 0;
 
     public static void main(String... args) throws IOException, GeneralSecurityException, SQLException, ClassNotFoundException {
-	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties(args[1]);
 	conn = getConnection();
 	

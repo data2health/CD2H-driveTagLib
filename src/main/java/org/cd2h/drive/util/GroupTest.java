@@ -15,6 +15,7 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class GroupTest {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 

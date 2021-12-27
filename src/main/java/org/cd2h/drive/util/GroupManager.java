@@ -33,11 +33,11 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GroupManager extends GoogleAPI {
-    static Logger logger = Logger.getLogger(GroupManager.class);
+	static Logger logger = LogManager.getLogger(GroupManager.class);
 	private static final String APPLICATION_NAME = "N3C Google Group Manager";
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static String TOKENS_DIRECTORY_PATH = null;
@@ -54,7 +54,6 @@ public class GroupManager extends GoogleAPI {
 			);
 
 	public static void main(String... args) throws IOException, GeneralSecurityException, ClassNotFoundException, SQLException {
-		PropertyConfigurator.configure(args[0]);
 		prop_file = PropertyLoader.loadProperties(args[1]);
 		conn = getConnection();
 		

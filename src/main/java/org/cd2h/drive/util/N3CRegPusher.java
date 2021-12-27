@@ -8,16 +8,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 
 import edu.uiowa.extraction.PropertyLoader;
 
 public class N3CRegPusher extends Sheet {
+	static Logger logger = LogManager.getLogger(N3CRegPusher.class);
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException, GeneralSecurityException {
-	PropertyConfigurator.configure(args[0]);
 	prop_file = PropertyLoader.loadProperties("gsuite_registration");
 	conn = getConnection();
 

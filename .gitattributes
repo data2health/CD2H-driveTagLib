@@ -20,6 +20,7 @@ src/main/java/org/cd2h/drive/util/N3CCohortPusher.java -text
 src/main/java/org/cd2h/drive/util/N3CEnclaveStatsPusher.java -text
 src/main/java/org/cd2h/drive/util/N3CProjectPusher.java -text
 src/main/java/org/cd2h/drive/util/N3CRegPusher.java -text
+src/main/java/org/cd2h/drive/util/N3CSitePusher.java -text
 src/main/java/org/cd2h/drive/util/PASCRegPusher.java -text
 src/main/java/org/cd2h/drive/util/Sheet.java -text
 src/main/java/org/cd2h/drive/util/Tester.java -text

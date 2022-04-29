@@ -30,12 +30,14 @@ public class Sheet extends GoogleAPI {
     static String schema = null;
     static String[] sheets = null;
     static int skipCount = 0;
+    static String doTruncate = null;
 
     public static void main(String... args) throws IOException, GeneralSecurityException, SQLException, ClassNotFoundException {
 	prop_file = PropertyLoader.loadProperties(args[1]);
 	conn = getConnection();
 	
 	schema = prop_file.getProperty("jdbc.schema");
+	doTruncate = prop_file.getProperty("jdbc.truncate");
 	String sheetString = prop_file.getProperty("sheets.sheets");
 	if (prop_file.getProperty("sheets.skipcount") != null)
 	    skipCount = Integer.parseInt(prop_file.getProperty("sheets.skipcount"));
@@ -76,10 +78,18 @@ public class Sheet extends GoogleAPI {
 	schemaStmt.execute();
 	schemaStmt.close();
 
-	PreparedStatement dropStmt = conn.prepareStatement("drop table if exists "+schema+"."+table+" cascade");
-	dropStmt.execute();
-	dropStmt.close();
-
+	if (doTruncate != null && doTruncate.equals("yes")) {
+		logger.info("truncating table " + table);
+		PreparedStatement truncateStmt = conn.prepareStatement("truncate "+schema+"."+table);
+		truncateStmt.execute();
+		truncateStmt.close();		
+	} else {
+		logger.info("dropping table " + table);
+		PreparedStatement dropStmt = conn.prepareStatement("drop table if exists "+schema+"."+table+" cascade");
+		dropStmt.execute();
+		dropStmt.close();
+	}
+	
 	// Build a new authorized API client service.
 	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	final String spreadsheetId = prop_file.getProperty("sheets.spreadsheetId");
@@ -116,9 +126,13 @@ public class Sheet extends GoogleAPI {
 		    createStatement.append(" )");
 		    insertStatement.append(" )");
 		    logger.debug(createStatement);
-		    PreparedStatement createStmt = conn.prepareStatement(createStatement.toString());
-		    createStmt.execute();
-		    createStmt.close();
+		    
+		    if (doTruncate == null) {
+		    	PreparedStatement createStmt = conn.prepareStatement(createStatement.toString());
+		    	createStmt.execute();
+		    	createStmt.close();
+		    }
+		    
 		    rowNum++;
 		    continue;
 		}

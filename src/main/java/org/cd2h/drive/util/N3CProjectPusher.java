@@ -50,7 +50,7 @@ public class N3CProjectPusher extends Sheet {
 	logger.info("skip count: " + prop_file.getProperty("projects.skipcount"));
 	StringBuffer buffer = new StringBuffer(prop_file.getProperty("projects.sheets")
 						+ "!A" + getStartRow(values)
-						+ ":J" + getEndRow(values));
+						+ ":K" + getEndRow(values));
 	logger.info("range: " + buffer.toString());
 	return buffer.toString();
     }

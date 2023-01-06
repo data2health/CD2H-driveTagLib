@@ -73,10 +73,10 @@ public class GroupManager extends GoogleAPI {
 			users(service);
 			break;
 		case "members":
-			members(service, "040ew0vw1p0o54r");
+			members(service);
 			break;
 		case "refresh":
-			members(service, "040ew0vw1p0o54r");
+			members(service);
 			newMembers(service, "040ew0vw1p0o54r");
 			break;
 		case "insert":
@@ -175,7 +175,7 @@ public class GroupManager extends GoogleAPI {
 	static void members(Directory service) throws IOException, SQLException {
 		simpleStmt("truncate n3c_groups.google_member_raw");
 		
-		PreparedStatement stmt = conn.prepareStatement("select id from n3c_groups.google_group");
+		PreparedStatement stmt = conn.prepareStatement("select id from n3c_groups.google_group where email ~ 'n3c'");
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			String id = rs.getString(1);
